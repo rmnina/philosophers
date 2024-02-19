@@ -6,11 +6,21 @@
 /*   By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 17:22:38 by jdufour           #+#    #+#             */
-/*   Updated: 2024/02/02 19:22:55 by jdufour          ###   ########.fr       */
+/*   Updated: 2024/02/18 21:27:09 by jdufour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+time_t	get_time(void)
+{
+	struct timeval	tv;
+	time_t			time;
+	
+	gettimeofday(&tv, NULL);
+	time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);;
+	return (time);
+}
 
 int	is_num(char *str)
 {

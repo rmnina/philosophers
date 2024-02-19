@@ -6,7 +6,7 @@
 #    By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/02 17:00:03 by jdufour           #+#    #+#              #
-#    Updated: 2024/02/14 17:32:18 by jdufour          ###   ########.fr        #
+#    Updated: 2024/02/18 20:56:26 by jdufour          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,12 +15,13 @@ NAME = philo
 SRCS = parsing.c \
 	main.c \
 	utils.c \
+	frees.c \
 
 OBJS = $(SRCS:.c=.o)
 
 CC = gcc
 
-FLAGS = -g -g3 -ggdb -Wall -Wextra -Werror
+FLAGS = -g -Wall -Wextra -Werror
 
 RM = rm -rf
 

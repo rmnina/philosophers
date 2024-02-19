@@ -6,99 +6,124 @@
 /*   By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 17:50:10 by jdufour           #+#    #+#             */
-/*   Updated: 2024/02/11 18:08:41 by jdufour          ###   ########.fr       */
+/*   Updated: 2024/02/19 15:58:04 by jdufour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
+int	check_finished(t_common *common, int i)
+{
+	if (common->philo_tab[i].nb_meals == common->max_meals)
+		common->finished++;
+	if (common->finished == common->nb_philos)
+	{
+		pthread_mutex_unlock(&common->checks);
+		pthread_mutex_lock(&common->print);
+		printf \
+		("(%ldms) all philos have eaten their %d meals!! they're happy and the simulation may end\n", \
+		get_time() - common->start_time, common->max_meals);
+		pthread_mutex_unlock(&common->print);
+		common->dead = TRUE;
+		return (1);
+	}
+	return (0);
+}
+
 void	*controller_routine(void *tmp)
 {
-	t_philo *philo;
-	philo = (t_philo *)tmp;
+	t_common 		*common;
+	int				i;
 	
+	common = (t_common *)tmp;
 	while (1)
 	{
-		if (philo->last_ate > philo->common->time_to_die)
+		i = 0;
+		while (i < common->nb_philos)
 		{
-			philo->died = TRUE;
-			philo->common->dead = TRUE;
-			return (NULL);
+			usleep(1000);
+			pthread_mutex_lock(&common->checks);
+			if (check_finished(common, i))
+				return (NULL);
+			if (get_time() - common->philo_tab[i].last_ate > common->time_to_die)
+			{
+				pthread_mutex_unlock(&common->checks);
+				ft_print(&common->philo_tab[i], "has died");
+				common->philo_tab[i].died = TRUE;
+				common->dead = TRUE;
+				return (NULL);
+			}
+			pthread_mutex_unlock(&common->checks);
+			i++;
 		}
 	}
 	return (NULL);
 }
 
-void	handle_forks(t_philo *philo)
-{
-	struct timeval tv;
-	
-	pthread_mutex_lock(philo->right_fork);
-	pthread_mutex_lock(&philo->common->print);
-	printf("%ld : Philo %d has taken his right fork\n", gettimeofday(&tv, NULL) - philo->common->start_time, philo->id);
-	pthread_mutex_lock(philo->left_fork);
-	printf("%ld : Philo %d has taken his left fork\n", gettimeofday(&tv, NULL) - philo->common->start_time, philo->id);
-	printf("%ld : Philo %d has started eating\n", gettimeofday(&tv, NULL) - philo->common->start_time, philo->id);
-	philo->nb_meals++;
-	philo->last_ate = gettimeofday(&tv, NULL) - philo->common->start_time;
-	pthread_mutex_unlock(philo->right_fork);
-	pthread_mutex_unlock(philo->left_fork);
-	pthread_mutex_unlock(&philo->common->print);
-}
-
 void	*routine(void *tmp)
 {
 	t_philo		*philo;
-	pthread_t	controller;
-	struct 		timeval tv;
 
 	philo = (t_philo *)tmp;
-	gettimeofday(&tv, NULL);
-	if (philo->id % 2 == 1)
-		usleep(500);
-	pthread_create(&controller, NULL, &controller_routine, &philo);
-	pthread_detach(controller);
-	while (1)
+	if (philo->id % 2 == 0)
+		usleep(8000);
+	pthread_mutex_lock(&philo->common->checks);
+	while (philo->common->dead == FALSE)
 	{
-		if (philo->common->dead == TRUE)
-		{
-			pthread_mutex_lock(&philo->common->print);
-			printf("%ld : Philo %d has died\n", (tv.tv_sec + tv.tv_usec) / 1000 - philo->common->start_time, philo->id);
-			break ;
-		}	
+		pthread_mutex_unlock(&philo->common->checks);
 		handle_forks(philo);
+		if (philo->common->nb_philos == 1)
+			return (NULL);
+		p_sleep(philo);
+		think(philo);
 	}
 	return (NULL);
 }
 
-int	init_threads(t_common *common)
+void	init_threads(t_common *common)
 {
-	int	i;
+	int			i;
 
 	i = 0;
-	while (i < (int)common->nb_philos)
+	if (pthread_create(&common->controller, NULL, controller_routine, common) \
+	!= 0)
+		return ;
+	while (i < common->nb_philos)
 	{
 		common->philo_tab[i].common = common;
 		if (pthread_create(&common->philo_tab[i].thread, NULL, \
-		&routine, &common->philo_tab[i]) != 0)
-			return (-1);
+		routine, &common->philo_tab[i]) != 0)
+		{
+			printf("error\n");
+			return ;
+		}
+		i++;
 	}
-	return (0);
 }
 
 int main(int argc, char **argv)
 {
 	t_common	*common;
-	struct timeval	tv;
+	int			i;
 
-	gettimeofday(&tv, NULL);
+	i = 0;
 	if (!get_errors(argc, argv))
 	{
-		common = init_common(argv, (int)ft_atoi(argv[1]));
+		common = init_common(argv, ft_atoi(argv[1]));
 		if (common == NULL)
+		{
+			printf("error\n");
 			return (1);
-		if (init_threads(common) == -1)
-			return (1);
+		}
+		init_threads(common);
+		while (i < common->nb_philos)
+		{
+			pthread_join(common->philo_tab[i].thread, NULL);
+			i++;
+		}
+		pthread_join(common->controller, NULL);
+		
 	}
+	free_philo(&common);
 	return (0);
 }
