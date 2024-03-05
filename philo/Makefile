@@ -6,7 +6,7 @@
 #    By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/02 17:00:03 by jdufour           #+#    #+#              #
-#    Updated: 2024/02/18 20:56:26 by jdufour          ###   ########.fr        #
+#    Updated: 2024/03/05 22:25:03 by jdufour          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ SRCS = parsing.c \
 	main.c \
 	utils.c \
 	frees.c \
+	routine_utils.c \
 
 OBJS = $(SRCS:.c=.o)
 

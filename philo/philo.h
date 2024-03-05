@@ -6,7 +6,7 @@
 /*   By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 17:01:08 by jdufour           #+#    #+#             */
-/*   Updated: 2024/02/19 15:52:51 by jdufour          ###   ########.fr       */
+/*   Updated: 2024/03/05 22:24:46 by jdufour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 # define PHILO_H
 
 # include <stdbool.h>
-#include "/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/mach/boolean.h"
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <sys/time.h>
+
+# define FALSE 0
+# define TRUE 1
 
 typedef struct s_common {
 	pthread_t		controller;
