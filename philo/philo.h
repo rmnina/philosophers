@@ -6,7 +6,7 @@
 /*   By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 17:01:08 by jdufour           #+#    #+#             */
-/*   Updated: 2024/03/05 22:24:46 by jdufour          ###   ########.fr       */
+/*   Updated: 2024/04/23 21:31:58 by jdufour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int			is_num(char *str);
 long int	ft_atoi(char *str);
 void		ft_putstr_fd(char *str, int fd);
 int			ft_strlen(char *str);
-time_t		get_time();
+time_t		get_time(void);
 
 // PARSING
 int			get_errors(int argc, char **argv);
@@ -66,10 +66,12 @@ t_philo		init_philo(t_common *common, int i);
 
 // ROUTINE
 void		ft_print(t_philo *philo, char *str);
-void		eat(t_philo *philo);
+int			eat(t_philo *philo);
 void		think(t_philo *philo);
-void		p_sleep(t_philo *philo);
-void		handle_forks(t_philo *philo);
+int			p_sleep(t_philo *philo);
+int			handle_forks(t_philo *philo);
+void		oops_philo_died(t_common *common, int i);
+int			ft_usleep(t_philo *philo, time_t value);
 
 // END
 void		free_philo(t_common **common);

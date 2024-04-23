@@ -6,7 +6,7 @@
 /*   By: jdufour <jdufour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 17:00:08 by jdufour           #+#    #+#             */
-/*   Updated: 2024/02/18 22:44:58 by jdufour          ###   ########.fr       */
+/*   Updated: 2024/03/23 16:35:59 by jdufour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	ft_error(char *str)
 int	get_errors(int argc, char **argv)
 {
 	int	i;
-	
+
 	i = 1;
 	if (argc < 5)
 		ft_error("Too few arguments.\nExpected : \n \
@@ -39,8 +39,9 @@ int	get_errors(int argc, char **argv)
 	[optionnal : number_of_times_each_philosopher_must_eat]\n");
 	while (argv[i])
 	{
-		if (ft_strlen(argv[i]) > 10 || !is_num(argv[i]))
-			ft_error("Error : numerical / positive values required\n");
+		if (ft_strlen(argv[i]) > 10 || !is_num(argv[i]) || \
+		ft_atoi(argv[i]) == 0)
+			ft_error("Error : numerical / strictly positive values required\n");
 		if (ft_atoi(argv[i]) > 2147483647)
 			ft_error("Error : arg bigger than int max\n");
 		i++;
@@ -51,7 +52,7 @@ int	get_errors(int argc, char **argv)
 int	get_params(char **argv, t_common **common)
 {
 	int	i;
-	
+
 	i = 0;
 	(*common)->time_to_die = ft_atoi(argv[2]);
 	(*common)->time_to_eat = ft_atoi(argv[3]);
@@ -102,10 +103,12 @@ t_common	*init_common(char **argv, int nb_philos)
 		return (NULL);
 	common->nb_philos = nb_philos;
 	common->start_time = get_time();
+	common->finished = nb_philos;
 	common->philo_tab = malloc(sizeof(t_philo) * nb_philos);
 	if (!common->philo_tab)
 		return (NULL);
-	get_params(argv, &common);
+	if (get_params(argv, &common) == -1)
+		return (NULL);
 	while (i < nb_philos)
 	{
 		common->philo_tab[i] = init_philo(common, i);
